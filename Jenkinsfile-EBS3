@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCESS_KEY_ID = credentials('class-jenkins-aws-secret-key-id')
+        AWS_ACCESS_KEY_ID     = credentials('class-jenkins-aws-secret-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('class-jenkins-aws-secret-access-key')
         ARTIFACT_NAME = 'ghada-beltexam.jar'
         AWS_S3_BUCKET = 'ghadaalsahli-belt2d2-artifacts-123456'
@@ -10,6 +10,20 @@ pipeline {
         AWS_EB_APP_VERSION = "${BUILD_ID}"
     } 
     stages {
+
+        stage('Quality Scan') {
+            steps {
+               
+            sh "mvn clean verify sonar:sonar \
+  -Dsonar.projectKey=onsite-GhadaAlsahli-B2D2 \
+  -Dsonar.host.url=http://52.23.193.18 \
+  -Dsonar.login=sqp_4f23159408f6a962bdc32f98e4fc585741dedba5"
+
+               
+            }
+            
+        }
+
         stage('Validate') {
             steps {
                 
@@ -37,28 +51,25 @@ pipeline {
 
             post {
                 always {
-                    junit '**/target/surefire-reports/TEST-*.xml'
+                    junit '/target/surefire-reports/TEST-*.xml'
                 }
             }
         }
 
-        stage('Package') {
+        stage('Package'){
             steps {
                 
                 sh "mvn package"
-
             }
-
-            post {
+              post {
                 success {
-                    archiveArtifacts artifacts: '**/target/**.jar', followSymlinks: false
-
+                    archiveArtifacts artifacts: '/target/.jar', followSymlinks: false
                     sh 'aws configure set region us-east-1'
-                    sh 'aws s3 cp ./target/**.jar s3://$AWS_S3_BUCKET/$ARTIFACT_NAME'
+                    sh 'aws s3 cp ./target/.jar s3://$AWS_S3_BUCKET/$ARTIFACT_NAME'
                 }
             }
         }
-
+        
         stage('Deploy') {
             steps {
 
