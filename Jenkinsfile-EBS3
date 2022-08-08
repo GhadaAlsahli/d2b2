@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('ghada-aws-secret-key-id')
+        AWS_ACCESS_KEY_ID = credentials('ghada-aws-secret-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('ghada-aws-secret-access-key')
         ARTIFACT_NAME = 'ghada-beltexam.jar'
         AWS_S3_BUCKET = 'ghadaalsahli-belt2d2-artifacts-123456'
